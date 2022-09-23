@@ -93,7 +93,7 @@
 
 		while (len--) {
 			cat = cats[len];
-			
+
 			if (cat.categories) {
 				if (parent) {
 					cat.parent = parent;
@@ -163,7 +163,8 @@
 			stats = {},
 			labelOptions = this.options.labels,
 			userAttr = labelOptions.groupedOptions,
-			css = labelOptions.style;
+			css = labelOptions.style,
+			tickWidthXAxis = labelOptions.tickWidthXAxis;
 
 		// build categories tree
 		buildTree(categories, reverseTree, stats);
@@ -178,6 +179,7 @@
 		this.tickLength = options.tickLength || this.tickLength || null;
 		// #66: tickWidth for x axis defaults to 1, for y to 0
 		this.tickWidth = pick(options.tickWidth, this.isXAxis ? 1 : 0);
+		this.tickWidth = pick(options.tickWidth, tickWidthXAxis !== undefined ? tickWidthXAxis : this.tickWidth);
 		this.directionFactor = [-1, 1, 1, -1][this.side];
 		this.options.lineWidth = pick(options.lineWidth, 1);
 		// #85: align labels vertically
@@ -437,13 +439,13 @@
 
 
 		while (tick) {
-			if (depth > 0 && !category.tick) {
+			if (depth >= 0 && !category.tick) {
 				// render label element
 				this.value = category.name;
 				var name = options.formatter ? options.formatter.call(this, category) : category.name,
-					hasOptions = userAttr && userAttr[depth - 1],
-					mergedAttrs = hasOptions ? merge(attr, userAttr[depth - 1]) : attr,
-					mergedCSS = hasOptions && userAttr[depth - 1].style ? merge(css, userAttr[depth - 1].style) : css;
+					hasOptions = userAttr && userAttr[depth],
+					mergedAttrs = hasOptions ? merge(attr, userAttr[depth]) : attr,
+					mergedCSS = hasOptions && userAttr[depth].style ? merge(css, userAttr[depth].style) : css;
 
 				// #63: style is passed in CSS and not as an attribute
 				delete mergedAttrs.style;
@@ -459,7 +461,7 @@
 
 				// tick properties
 				tick.startAt = this.pos;
-				tick.childCount = category.categories.length;
+				tick.childCount = category.categories ? category.categories.length : 0;
 				tick.leaves = category.leaves;
 				tick.visible = this.childCount;
 				tick.label = label;
